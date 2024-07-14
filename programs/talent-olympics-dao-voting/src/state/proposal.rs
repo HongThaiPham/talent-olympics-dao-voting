@@ -10,4 +10,5 @@ pub struct Proposal {
     pub max_votes: u64,
     pub votes_for: u64,
     pub votes_against: u64,
+    pub end_time: i64,
 }

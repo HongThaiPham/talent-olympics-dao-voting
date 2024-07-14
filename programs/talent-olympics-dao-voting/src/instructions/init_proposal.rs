@@ -18,7 +18,13 @@ pub struct InitProposal<'info> {
     pub system_program: Program<'info, System>,
 }
 impl<'info> InitProposal<'info> {
-    pub fn handler(&mut self, id: u64, content: String, max_votes: u64) -> Result<()> {
+    pub fn handler(
+        &mut self,
+        id: u64,
+        content: String,
+        max_votes: u64,
+        end_time: i64,
+    ) -> Result<()> {
         self.proposal.set_inner(Proposal {
             id,
             max_votes,
@@ -26,6 +32,7 @@ impl<'info> InitProposal<'info> {
             content,
             votes_for: 0,
             votes_against: 0,
+            end_time,
         });
         Ok(())
     }

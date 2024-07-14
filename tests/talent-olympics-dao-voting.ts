@@ -2,6 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { TalentOlympicsDaoVoting } from "../target/types/talent_olympics_dao_voting";
 import { assert } from "chai";
+import dayjs from "dayjs";
 
 describe("talent-olympics-dao-voting", () => {
   // Configure the client to use the local cluster.
@@ -25,6 +26,7 @@ describe("talent-olympics-dao-voting", () => {
   );
 
   const maximumVote = new anchor.BN(2);
+  const endTime = dayjs().add(5, "s").unix();
 
   before(async () => {
     {
@@ -53,7 +55,12 @@ describe("talent-olympics-dao-voting", () => {
 
   it("Should init a proposal successfully", async () => {
     const tx = await program.methods
-      .initProposal(id, "Give 1000 USDC to the winner", maximumVote)
+      .initProposal(
+        id,
+        "Give 1000 USDC to the winner",
+        maximumVote,
+        new anchor.BN(endTime)
+      )
       .accountsPartial({
         signer: user1.publicKey,
         proposal: proposalAccount,
@@ -112,8 +119,42 @@ describe("talent-olympics-dao-voting", () => {
         })
         .signers([user4])
         .rpc();
+
+      assert.ok(false);
     } catch (error) {
       assert.isNotNull(error);
     }
+  });
+
+  it("Should creator close proposal fail when proposal not expired", async () => {
+    try {
+      const tx = await program.methods
+        .closeProposal(id)
+        .accountsPartial({
+          signer: user1.publicKey,
+          proposal: proposalAccount,
+        })
+        .signers([user1])
+        .rpc();
+      assert.ok(false);
+    } catch (error) {
+      assert.isNotNull(error);
+    }
+  });
+
+  it("Should creator close proposal successfully when proposal expired", async () => {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    const tx = await program.methods
+      .closeProposal(id)
+      .accountsPartial({
+        signer: user1.publicKey,
+        proposal: proposalAccount,
+      })
+      .signers([user1])
+      .rpc();
+    assert.ok(tx);
+
+    console.log("Close proposal tx", tx);
   });
 });

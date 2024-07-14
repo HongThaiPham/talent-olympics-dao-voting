@@ -27,7 +27,12 @@ pub struct Vote<'info> {
 impl<'info> Vote<'info> {
     pub fn handler(&mut self, _id: u64, is_agains: bool) -> Result<()> {
         require!(
-            self.proposal.votes_for + self.proposal.votes_against < self.proposal.max_votes,
+            self.proposal.end_time.gt(&Clock::get()?.unix_timestamp),
+            MyErrorCode::ProposalExpired
+        );
+
+        require!(
+            (self.proposal.votes_for + self.proposal.votes_against).lt(&self.proposal.max_votes),
             MyErrorCode::MaxVotesReached
         );
 

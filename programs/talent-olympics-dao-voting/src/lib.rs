@@ -20,11 +20,16 @@ pub mod talent_olympics_dao_voting {
         id: u64,
         content: String,
         max_votes: u64,
+        end_time: i64,
     ) -> Result<()> {
-        ctx.accounts.handler(id, content, max_votes)
+        ctx.accounts.handler(id, content, max_votes, end_time)
     }
 
     pub fn vote(ctx: Context<Vote>, id: u64, is_agains: bool) -> Result<()> {
         ctx.accounts.handler(id, is_agains)
+    }
+
+    pub fn close_proposal(ctx: Context<CloseProposal>, id: u64) -> Result<()> {
+        ctx.accounts.handler(id)
     }
 }
